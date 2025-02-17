@@ -1,0 +1,23 @@
+{
+  "options": {
+    "syntax": "proto3"
+  },
+  "nested": {
+    "pkg": {
+      "nested": {
+        "TestMessage": {
+          "fields": {
+            "timestamp": {
+              "type": "int64",
+              "id": 1
+            },
+            "message": {
+              "type": "string",
+              "id": 2
+            }
+          }
+        }
+      }
+    }
+  }
+}

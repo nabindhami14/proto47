@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package payment;
+
+message PaymentEvent {
+  string order_id = 1;
+  string user_id = 2;
+  string status = 3;
+}
