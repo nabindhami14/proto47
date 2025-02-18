@@ -1,27 +1,8 @@
-const path = require("path");
 const express = require("express");
-
-const grpc = require("@grpc/grpc-js");
-const protoLoader = require("@grpc/proto-loader");
 
 const { CreateOrderRequest, OrderResponse } = require("../build/order_pb");
 
-const packageDefinition = protoLoader.loadSync(
-  path.resolve(__dirname, "../protobuf/order.proto"),
-  {
-    keepCase: true,
-    longs: String,
-    enums: String,
-    defaults: true,
-  }
-);
-
-const orderProto = grpc.loadPackageDefinition(packageDefinition).order;
-
-const orderClient = new orderProto.OrderService(
-  process.env.GRPC_SERVER || "localhost:50051",
-  grpc.credentials.createInsecure()
-);
+const orderClient = require("./clients/order.client");
 
 const app = express();
 
@@ -42,6 +23,7 @@ app.post("/", async (req, res) => {
       const deserializedPayload = CreateOrderRequest.deserializeBinary(
         req.body
       ).toObject();
+
       payload = {
         userId: deserializedPayload.userid,
         items: deserializedPayload.itemsList.map((item) => ({
@@ -53,13 +35,7 @@ app.post("/", async (req, res) => {
       payload = req.body;
     }
 
-    // Use async/await for gRPC call
-    const response = await new Promise((resolve, reject) => {
-      orderClient.CreateOrder(payload, (error, response) => {
-        if (error) reject(error);
-        else resolve(response);
-      });
-    });
+    const response = await orderClient.createOrder(payload);
 
     if (contentType === "application/octet-stream") {
       const orderResponse = new OrderResponse();

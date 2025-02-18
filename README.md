@@ -161,3 +161,24 @@ app.use(express.raw({ type: "application/octet-stream" }));
 ```
 
 > **_This middleware tells Express to parse incoming requests with a `Content-Type` of `application/octet-stream` and make the raw binary data available in `req.body` as a `Buffer`. When handling raw binary data, such as files, encrypted payloads, or custom binary protocols, you don't want Express to parse the request into JSON or URL-encoded data._**
+
+## WHY SERIALIZATION
+
+```js
+const binaryData = orderResponse.serializeBinary(); // Returns Uint8Array
+const buffer = Buffer.from(binaryData); // Convert Uint8Array to Buffer
+
+res.set({
+  "Content-Type": "application/octet-stream", // Specifies the type of data
+  "Content-Length": buffer.length, // Specifies the size of the data
+  "Cache-Control": "no-cache", // Prevents caching of the response
+});
+
+res.send(buffer); // Send binary data as Buffer
+```
+
+> **_When you call `orderResponse.serializeBinary()`, it returns the serialized binary data of the `OrderResponse` object in the form of a `Uint8Array`. This is a typed array that represents binary data in JavaScript. Node.js uses the `Buffer` class to handle binary data efficiently. A Buffer is a subclass of Uint8Array but is optimized for I/O operations in Node.js. When sending a response in Express, the `res.send()` method expects the data to be in a format it can handle, such as a `string`, `object`, or `Buffer`. For binary data, a Buffer is the most appropriate format._**
+>
+> **_While `Uint8Array` is similar to `Buffer`, Express's `res.send()` does not natively support Uint8Array. It expects a Buffer for binary data. Converting Uint8Array to Buffer ensures compatibility with Express and other Node.js APIs that expect binary data in Buffer format._**
+>
+> **_The `application/octet-stream` content type is used for sending raw binary data. To ensure the client receives the data correctly, the response must be in a binary format (Buffer). By converting the serialized binary data (Uint8Array) to a Buffer, you ensure that the binary data is transmitted accurately and efficiently._**

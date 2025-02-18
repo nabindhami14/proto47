@@ -7,7 +7,7 @@ service OrderService {
 }
 
 message OrderItem {
-    string productId = 1;
+    string productId = 1 [json_name = "productId"];
     int32 quantity = 2;
 }
 
