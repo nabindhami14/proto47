@@ -4,6 +4,7 @@ package order;
 
 service OrderService {
   rpc CreateOrder (CreateOrderRequest) returns (OrderResponse);
+  rpc GetOrders (GetOrdersRequest) returns (GetOrdersResponse);
 }
 
 message OrderItem {
@@ -19,4 +20,11 @@ message CreateOrderRequest {
 message OrderResponse {
     string orderId = 1;
     string status = 2;
+}
+
+message GetOrdersRequest{
+
+}
+message GetOrdersResponse{
+    repeated OrderItem data = 1;
 }
