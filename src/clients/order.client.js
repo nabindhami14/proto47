@@ -38,6 +38,15 @@ class OrderClient {
     });
   }
 
+  getOrders(payload) {
+    return new Promise((resolve, reject) => {
+      this.client.GetOrders(payload, (error, response) => {
+        if (error) reject(error);
+        else resolve(response);
+      });
+    });
+  }
+
   close() {
     if (this.client) {
       grpc.closeClient(this.client);

@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { CreateOrder } = require("./controllers/order.controller");
+const { CreateOrder, GetOrders } = require("./controllers/order.controller");
 
 const app = express();
 
@@ -13,6 +13,7 @@ app.use((req, res, next) => {
 });
 
 app.post("/", CreateOrder);
+app.get("/", GetOrders);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>

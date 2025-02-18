@@ -18,6 +18,20 @@ server.addService(orderProto.OrderService.service, {
       status: "PENDING",
     });
   },
+  GetOrders: async (call, callback) => {
+    callback(null, {
+      data: [
+        {
+          productId: "PRO1",
+          quantity: 10,
+        },
+        {
+          productId: "PRO2",
+          quantity: 20,
+        },
+      ],
+    });
+  },
 });
 
 server.bindAsync(
