@@ -5,6 +5,7 @@ package order;
 service OrderService {
   rpc CreateOrder (CreateOrderRequest) returns (OrderResponse);
   rpc GetOrders (GetOrdersRequest) returns (GetOrdersResponse);
+  rpc HelloWorld (GetOrdersRequest) returns (HelloWorldResponse);
 }
 
 message OrderItem {
@@ -27,4 +28,7 @@ message GetOrdersRequest{
 }
 message GetOrdersResponse{
     repeated OrderItem data = 1;
+}
+message HelloWorldResponse {
+    string first_name = 1;
 }
