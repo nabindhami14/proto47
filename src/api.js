@@ -1,5 +1,6 @@
 const path = require("path");
 const express = require("express");
+
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 
@@ -18,35 +19,50 @@ const packageDefinition = protoLoader.loadSync(
 const orderProto = grpc.loadPackageDefinition(packageDefinition).order;
 
 const orderClient = new orderProto.OrderService(
-  "localhost:50051",
+  process.env.GRPC_SERVER || "localhost:50051",
   grpc.credentials.createInsecure()
 );
 
 const app = express();
-// app.use(express.json());
-app.use(express.raw({ type: "application/octet-stream" }));
 
-app.post("/", (req, res) => {
-  const deserializedPayload = CreateOrderRequest.deserializeBinary(
-    req.body
-  ).toObject();
+app.use((req, res, next) => {
+  const contentType = req.headers["content-type"];
+  if (contentType === "application/octet-stream") {
+    return express.raw({ type: "application/octet-stream" })(req, res, next);
+  }
+  return express.json()(req, res, next);
+});
 
-  const payload = {
-    userId: deserializedPayload.userid,
-    items: deserializedPayload.itemsList.map((item) => ({
-      productId: item.productid,
-      quantity: item.quantity,
-    })),
-  };
+app.post("/", async (req, res) => {
+  const contentType = req.headers["content-type"];
+  let payload;
 
-  orderClient.CreateOrder(payload, (error, response) => {
-    if (error) {
-      return res.status(500).json({ error });
+  try {
+    if (contentType === "application/octet-stream") {
+      const deserializedPayload = CreateOrderRequest.deserializeBinary(
+        req.body
+      ).toObject();
+      payload = {
+        userId: deserializedPayload.userid,
+        items: deserializedPayload.itemsList.map((item) => ({
+          productId: item.productid,
+          quantity: item.quantity,
+        })),
+      };
+    } else {
+      payload = req.body;
     }
 
-    try {
-      const orderResponse = new OrderResponse();
+    // Use async/await for gRPC call
+    const response = await new Promise((resolve, reject) => {
+      orderClient.CreateOrder(payload, (error, response) => {
+        if (error) reject(error);
+        else resolve(response);
+      });
+    });
 
+    if (contentType === "application/octet-stream") {
+      const orderResponse = new OrderResponse();
       orderResponse.setOrderid(response.orderId);
       orderResponse.setStatus(response.status);
 
@@ -59,11 +75,16 @@ app.post("/", (req, res) => {
         "Cache-Control": "no-cache",
       });
 
-      res.end(buffer);
-    } catch (error) {
-      res.status(500).json({ error });
+      return res.send(buffer);
     }
-  });
+
+    return res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.listen(3000, () => console.log("http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
+);

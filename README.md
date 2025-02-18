@@ -153,3 +153,11 @@ const decodedResponse = proto.OrderResponse.deserializeBinary(buffer);
 // Step 4: Output the decoded plain object
 console.log("Decoded Plain Object:", decodedResponse.toObject());
 ```
+
+---
+
+```js
+app.use(express.raw({ type: "application/octet-stream" }));
+```
+
+> **_This middleware tells Express to parse incoming requests with a `Content-Type` of `application/octet-stream` and make the raw binary data available in `req.body` as a `Buffer`. When handling raw binary data, such as files, encrypted payloads, or custom binary protocols, you don't want Express to parse the request into JSON or URL-encoded data._**
