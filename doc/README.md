@@ -84,3 +84,63 @@ console.log(obj);
 ```
 
 > [Do you want a better understanding of Buffer in Node.js? Check this out.](https://www.freecodecamp.org/news/do-you-want-a-better-understanding-of-buffer-in-node-js-check-this-out-2e29de2968e8/)
+
+## HELPER FUNCTION
+
+```js
+function populateProtobufMessage(protoInstance, data) {
+  for (const key in data) {
+    const methodName = `set${key[0].toUpperCase()}${key
+      .slice(1)
+      .toLowerCase()}`;
+
+    if (methodName in protoInstance) {
+      protoInstance[methodName](data[key]);
+    }
+  }
+  return protoInstance;
+}
+```
+
+```js
+class ExampleClass {
+  setSymbol(value) {
+    this.symbol = value;
+  }
+  setFiscalyear(value) {
+    this.fiscalYear = value;
+  }
+  setCash(value) {
+    this.cash = value;
+  }
+  setBonus(value) {
+    this.bonus = value;
+  }
+  setBookclosingdate(value) {
+    this.bookClosingDate = value;
+  }
+  setTotal(value) {
+    this.total = value;
+  }
+  setAnnouncementdate(value) {
+    this.announcementDate = value;
+  }
+}
+```
+
+```js
+const data = {
+  symbol: "AAPL",
+  fiscalYear: "2023",
+  cash: 5.0,
+  bonus: 2.0,
+  bookClosingDate: "2023-02-01",
+  total: 7.0,
+  announcementDate: "2023-01-15",
+};
+
+const exampleObject = new ExampleClass();
+populateProtobufMessage(exampleObject, data);
+
+console.log(exampleObject);
+```

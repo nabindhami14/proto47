@@ -182,3 +182,24 @@ res.send(buffer); // Send binary data as Buffer
 > **_While `Uint8Array` is similar to `Buffer`, Express's `res.send()` does not natively support Uint8Array. It expects a Buffer for binary data. Converting Uint8Array to Buffer ensures compatibility with Express and other Node.js APIs that expect binary data in Buffer format._**
 >
 > **_The `application/octet-stream` content type is used for sending raw binary data. To ensure the client receives the data correctly, the response must be in a binary format (Buffer). By converting the serialized binary data (Uint8Array) to a Buffer, you ensure that the binary data is transmitted accurately and efficiently._**
+
+##
+
+```js
+app.use(express.json());
+app.use(express.raw({ type: "application/octet-stream" }));
+```
+
+> The first matching middleware will process the request and potentially modify `req.body`. `express.json()` will try to parse ANY request as JSON first, If the JSON parsing fails, it moves to the next middleware.
+
+```js
+app.use((req, res, next) => {
+  const contentType = req.headers["content-type"];k
+  if (contentType === "application/octet-stream") {
+    return express.raw({ type: "application/octet-stream" })(req, res, next);
+  }
+  return express.json()(req, res, next);
+});
+```
+
+> The reason we use `express.json()(req, res, next)` instead of just `next()` is that these parsers are middleware factory functions - they return the actual middleware function that needs to be executed. When you call express.json(), it returns a middleware function, but doesn't execute it. To actually parse the request, you need to execute that returned function with `(req, res, next)`.
