@@ -1,17 +1,17 @@
+## GRPC SERVICE
+
 ```sh
 node src/service.js
 ```
 
-> `GRPC SERVICE`
+## API GATEWAY
 
 ```sh
 node src/api.js
 ```
 
-> `API GAWTEWAY`
+## CLIENT
 
 ```sh
 node src/app.js
 ```
-
-> `CLIENT`
